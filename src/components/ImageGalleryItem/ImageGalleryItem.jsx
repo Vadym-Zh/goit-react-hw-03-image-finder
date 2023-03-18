@@ -14,4 +14,11 @@ const ImageGalleryItem = ({ src, alt, onImage, largeImage }) => {
   );
 };
 
+ImageGalleryItem.propTypes = {
+  src: PropTypes.string.isRequired,
+  alt: PropTypes.string.isRequired,
+  largeImage: PropTypes.string.isRequired,
+  onImage: PropTypes.func.isRequired,
+};
+
 export default ImageGalleryItem;
