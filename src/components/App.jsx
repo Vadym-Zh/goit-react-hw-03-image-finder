@@ -17,14 +17,7 @@ class App extends Component {
     loadBtn: false,
     isModal: false,
     bigImage: '',
-  };
-  // Запит зображення на API
-  onSearch = searchItem => {
-    this.setState({
-      query: searchItem,
-      pics: [],
-      page: 1,
-    });
+    totalPage: null,
   };
 
   // Рендер відподіз з API
@@ -35,6 +28,18 @@ class App extends Component {
         this.setState({ isLoading: true });
         const { query, page } = this.state;
         const response = await getImages(query, page);
+        const mathPages = Math.ceil(response.data.totalHits / 12);
+        this.setState({ totalPage: mathPages + 1 });
+        console.log(this.state.page);
+        console.log(this.state.totalPage);
+        console.log(this.state.page === mathPages);
+
+        if (this.state.page === mathPages) {
+          this.setState({ loadBtn: false });
+          this.setState({ isLoading: false });
+          alert('The end');
+          // return;
+        }
 
         if (response.data.hits.length === 0) {
           alert('No results found');
@@ -43,30 +48,39 @@ class App extends Component {
           });
           return;
         }
-
-        if (page > response.totalHits / 12) {
-          alert('The end');
-          this.setState({ isLoading: false });
-          return;
-        }
+        // if (page > response.totalHits / 12) {
+        //   alert('The end');
+        //   this.setState({ isLoading: false });
+        //   return;
+        // }
 
         this.setState(prevState => ({
           isLoading: false,
           pics: [...prevState.pics, ...response.data.hits],
-          loadBtn: true,
         }));
       } catch (error) {
         console.log(error);
       }
     }
   }
+
+  // Запит зображення на API
+  onSearch = searchItem => {
+    this.setState({
+      query: searchItem,
+      pics: [],
+      page: 1,
+      loadBtn: true,
+    });
+  };
+
   // Load more
   loadMore = () => {
-    console.log(this.state.page);
     this.setState(({ page }) => ({
       page: page + 1,
     }));
   };
+
   openModal = image => {
     this.setState({
       isModal: true,
@@ -88,11 +102,6 @@ class App extends Component {
         <ImageGallery images={pics} onImageClick={this.openModal} />
         {isLoading && <Loader />}
         {loadBtn && <ButtonMore onLoadMore={this.loadMore} />}
-        {/* {isModal && (
-          <Modal onClose={this.closeModal}>
-            <img src={this.state.bigImage} alt={query} />
-          </Modal>
-        )} */}
         {isModal && (
           <Modal onClose={this.closeModal} src={bigImage} alt={query}></Modal>
         )}
